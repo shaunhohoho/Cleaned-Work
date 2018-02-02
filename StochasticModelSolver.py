@@ -12,6 +12,24 @@ import scipy as sp
 import os
 import sys
 import csv
+import time as tm
+
+
+"""
+
+Script for simulating the emission of a multi-level atomic system, an N x N matrix describing the transitions
+between all of the states is given and the dynamics of a system starting in a given initial state (1 x N ) vector 
+is found through a variety of methods. A deterministic PDE "continuousStochasticSolver" can be used for data collected
+over a large ensemble of measurements, whereas more stochastic methods "discreteStochasticSolver" or 
+"gillespieStochasticSolver" can be used to simulate the dynamics where there is a smaller set of collected
+data where an "averaging" is not possible. Use "continuousStochasticSolver" for ensemble averaged pulsed measurements, 
+and "discrete" or "gillespie" for single shot nuclear readout, or real-time spectroscopy. Note should be possible to
+change "discrete" or "gillespie" to find a better approximation for the optical decay rates look up HMM in 
+Philipp Neumann's thesis "Towards a room temperature solid state quantum processor - the nitrogen-vacancy center in diamond"
+Potentially, you can extend the idea of 'Calculation of quantum-dot blinking using the Gillespie Monte Carlo algorithm' to 
+NV centres, and replace the 'long lived dark state' with photoionisation of the NV centre (NV- -> NV0)
+
+"""
 
 
 def gillespieStochasticSolver(squareArray,population, time, timeStep, ensemble = 1000, plot = False):
@@ -361,24 +379,28 @@ if __name__ == "__main__":
     b = [[1,1.0j],[1.0j,1]]
     
 
-    
-    initPop = initPopGenerator(5,init=0)
-    continuousStochasticSolver(tranMat,initPop,10,.1,plot=True)
-    
+
+
     """
-    initPop = initPopGenerator(5,init = 0)
-    #tranMat = stochasticMatrixGenerator(30,load=False)
+    Run initPopGenerator(N, init = k) to generate a  L= 1 x N vector where initPop(5,1) = (1,0,0,0,0)
+    stochasticMatrixGenerator(N,load=False) produces an NxN transition matrix, load=True loads a matrix
+    from StochasticMatrix.csv from the same directory as this script.
+    """
+    
+    initPop = initPopGenerator(30,init=0)
+    
+    tranMat = stochasticMatrixGenerator(30,load=False)
     t = tm.time()
-    #discreteStochasticSolver(tranMat,initPop,.2,.01,ensemble= 30000,plot=True)
-    continuousStochasticSolver(tranMat,initPop,10,.01,plot = True)
+
+    continuousStochasticSolver(tranMat,initPop,.2,.01,plot = True)
     print "continuous"
     print tm.time()-t
     t= tm.time()
 
-    #gillespieStochasticSolver(tranMat,initPop,.2,.01,ensemble = 100000, plot=True)
+    gillespieStochasticSolver(tranMat,initPop,.2,.01,ensemble = 100000, plot=True)
     print "gillespie"
     print tm.time()-t
-    """
+
     
 
 
